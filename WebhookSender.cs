@@ -1,10 +1,9 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Exiled.API.Features;
-using KillStatsTracker; // ✅ Добавено, за да използваме PlayerData
 
 namespace KillStatsTracker
 {
@@ -12,65 +11,90 @@ namespace KillStatsTracker
     {
         private static readonly HttpClient HttpClient = new();
 
-        public static async void SendLeaderboard(PlayerData data, Config config)
+        public static void SendLeaderboard(PlayerData data, Config config)
         {
             if (!config.Webhook.Enabled || string.IsNullOrEmpty(config.Webhook.URL))
                 return;
-            if (config.Debug == true)
-                Log.Info("[DEBUG] Sending leaderboard webhook...");
-            if (config.Debug == true)
-                Log.Info($"[DEBUG] Total players in JSON: {data.Players.Count}");
 
-            var embedFields = new StringBuilder();
-            int count = 0;
+            var sorted = data.Players.Values.OrderByDescending(p => p.WeaponKills + p.GrenadeKills + p.SCPKills + p.Escapes + p.PinkCandyUsed).ToList();
 
-            foreach (var player in data.Players)
+            void SendEmbed(string title, string icon, List<(string name, int value)> entries)
             {
-                if (count >= config.TopPlayers) break;
-                var stats = player.Value;
-                embedFields.AppendLine($"**{stats.Name}**");
-                if (config.Webhook.Fields.WeaponKills)
-                    embedFields.AppendLine($"🔫 Weapon Kills: {stats.WeaponKills}");
-                if (config.Webhook.Fields.GrenadeKills)
-                    embedFields.AppendLine($"💣 Grenade Kills: {stats.GrenadeKills}");
-                if (config.Webhook.Fields.SCPKills)
-                    embedFields.AppendLine($"🦠 SCP Kills: {stats.SCPKills}");
-                if (config.Webhook.Fields.PinkCandyUsed)
-                    embedFields.AppendLine($"🍬 PinkCandy Used: {stats.PinkCandyUsed}");
-                if (config.Webhook.Fields.Escapes)
-                    embedFields.AppendLine($"🚪 Escapes: {stats.Escapes}");
-                embedFields.AppendLine();
-                count++;
-            }
+                if (entries.Count == 0) return;
 
-            if (config.Debug == true)
-                Log.Info($"[DEBUG] Players in leaderboard: {count}");
-
-            var json = new
-            {
-                embeds = new[]
+                var embedPayload = new
                 {
-                    new
+                    embeds = new[]
                     {
-                        title = "🏆 Kill Leaderboard 🏆",
-                        description = embedFields.ToString(),
-                        color = 16711680,
+                        new
+                        {
+                            title = $"🏆 {title} Leaderboard",
+                            description = $"Top players with the most {title.ToLower()}.\n\n" +
+                                          $"Top Players\n" +
+                                          string.Join("\n", entries.Select((e, i) => $"{e.name} - {e.value}")),
+                            color = 0xFF0000,
+                            footer = new { text = "SCP PARLAMATA" }
+                        }
                     }
-                }
-            };
+                };
 
-            var content = new StringContent(JsonConvert.SerializeObject(json), Encoding.UTF8, "application/json");
+                string json = JsonConvert.SerializeObject(embedPayload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            try
-            {
-                await HttpClient.PostAsync(config.Webhook.URL, content);
-                if (config.Debug == true)
-                    Log.Info("[DEBUG] Webhook sent successfully!");
+                HttpClient.PostAsync(config.Webhook.URL, content).GetAwaiter().GetResult();
+
+                if (config.Debug)
+                    Log.Info($"[DEBUG] Webhook sent for {title}");
             }
-            catch (Exception ex)
+
+            if (config.Webhook.Fields.WeaponKills)
             {
-                if (config.Debug == true)
-                    Log.Error($"[ERROR] Failed to send webhook: {ex.Message}");
+                var top = sorted.Where(p => p.WeaponKills > 0)
+                                .OrderByDescending(p => p.WeaponKills)
+                                .Take(config.TopPlayers)
+                                .Select(p => (p.Name, p.WeaponKills))
+                                .ToList();
+                SendEmbed("🔫 Weapon Kills", "🔫", top);
+            }
+
+            if (config.Webhook.Fields.GrenadeKills)
+            {
+                var top = sorted.Where(p => p.GrenadeKills > 0)
+                                .OrderByDescending(p => p.GrenadeKills)
+                                .Take(config.TopPlayers)
+                                .Select(p => (p.Name, p.GrenadeKills))
+                                .ToList();
+                SendEmbed("💣 Grenade Kills", "💣", top);
+            }
+
+            if (config.Webhook.Fields.SCPKills)
+            {
+                var top = sorted.Where(p => p.SCPKills > 0)
+                                .OrderByDescending(p => p.SCPKills)
+                                .Take(config.TopPlayers)
+                                .Select(p => (p.Name, p.SCPKills))
+                                .ToList();
+                SendEmbed("🦠 SCP Kills", "👹", top);
+            }
+
+            if (config.Webhook.Fields.PinkCandyUsed)
+            {
+                var top = sorted.Where(p => p.PinkCandyUsed > 0)
+                                .OrderByDescending(p => p.PinkCandyUsed)
+                                .Take(config.TopPlayers)
+                                .Select(p => (p.Name, p.PinkCandyUsed))
+                                .ToList();
+                SendEmbed("🍬 Pink Candy Used", "🍬", top);
+            }
+
+            if (config.Webhook.Fields.Escapes)
+            {
+                var top = sorted.Where(p => p.Escapes > 0)
+                                .OrderByDescending(p => p.Escapes)
+                                .Take(config.TopPlayers)
+                                .Select(p => (p.Name, p.Escapes))
+                                .ToList();
+                SendEmbed("🚪 Escapes", "🚪", top);
             }
         }
     }
