@@ -12,7 +12,7 @@ namespace KillStatsTracker
         public override string Name => "KillStatsTracker";
         public override string Author => "LaFesta1749";
         public override string Prefix => "KST";
-        public override Version Version => new(1, 0, 0);
+        public override Version Version => new(1, 0, 1);
         public static KillStatsTracker? Instance { get; private set; }
 
         private EventHandlers? eventHandlers;
