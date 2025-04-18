@@ -1,5 +1,5 @@
 ![Downloads](https://img.shields.io/github/downloads/LaFesta1749/KillStatsTracker-KST-Exiled/total?label=Downloads&style=for-the-badge)
-[![Join our Discord](https://img.shields.io/discord/PTmUuxuDXQ?label=Join%20our%20Discord&logo=discord&style=for-the-badge)](https://discord.gg/PTmUuxuDXQ)
+[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/PTmUuxuDXQ)
 
 # KillStatsTracker
 
