@@ -10,7 +10,7 @@ namespace KillStatsTracker
 {
     public static class WebhookSender
     {
-        private static readonly HttpClient HttpClient = new HttpClient();
+        private static readonly HttpClient HttpClient = new();
 
         public static async void SendLeaderboard(PlayerData data, Config config)
         {
@@ -29,15 +29,15 @@ namespace KillStatsTracker
                 if (count >= config.TopPlayers) break;
                 var stats = player.Value;
                 embedFields.AppendLine($"**{stats.Name}**");
-                if (config.Webhook.Fields.ShowWeaponKills)
+                if (config.Webhook.Fields.WeaponKills)
                     embedFields.AppendLine($"🔫 Weapon Kills: {stats.WeaponKills}");
-                if (config.Webhook.Fields.ShowGrenadeKills)
+                if (config.Webhook.Fields.GrenadeKills)
                     embedFields.AppendLine($"💣 Grenade Kills: {stats.GrenadeKills}");
-                if (config.Webhook.Fields.ShowSCPKills)
+                if (config.Webhook.Fields.SCPKills)
                     embedFields.AppendLine($"🦠 SCP Kills: {stats.SCPKills}");
-                if (config.Webhook.Fields.ShowPinkCandyUsed)
+                if (config.Webhook.Fields.PinkCandyUsed)
                     embedFields.AppendLine($"🍬 PinkCandy Used: {stats.PinkCandyUsed}");
-                if (config.Webhook.Fields.ShowEscapes)
+                if (config.Webhook.Fields.Escapes)
                     embedFields.AppendLine($"🚪 Escapes: {stats.Escapes}");
                 embedFields.AppendLine();
                 count++;
@@ -55,7 +55,6 @@ namespace KillStatsTracker
                         title = "🏆 Kill Leaderboard 🏆",
                         description = embedFields.ToString(),
                         color = 16711680,
-                        footer = new { text = config.Webhook.Footer }
                     }
                 }
             };
