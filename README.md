@@ -1,3 +1,6 @@
+![Downloads](https://img.shields.io/github/downloads/LaFesta1749/KillStatsTracker/total?label=Downloads&style=for-the-badge)
+[![Join our Discord](https://img.shields.io/discord/PTmUuxuDXQ?label=Join%20our%20Discord&logo=discord&style=for-the-badge)](https://discord.gg/PTmUuxuDXQ)
+
 # KillStatsTracker
 
 An **Exiled plugin** for **SCP: Secret Laboratory** that tracks:
