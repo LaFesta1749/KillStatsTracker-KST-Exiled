@@ -55,7 +55,7 @@ namespace KillStatsTracker
 
             try
             {
-                TimeZoneInfo bgTimeZone = TimeZoneInfo.FindSystemTimeZoneById("FLE Standard Time"); // Bulgarian time
+                TimeZoneInfo bgTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Sofia"); // Bulgarian time
                 DateTime now = TimeZoneInfo.ConvertTime(DateTime.Now, bgTimeZone);
 
                 int daysUntilReset = ((int)Config.WeeklyReset.Day - (int)now.DayOfWeek + 7) % 7;
